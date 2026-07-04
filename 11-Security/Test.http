@@ -1,0 +1,42 @@
+### 🧪 Security HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# =========================================================================
+# 1. SQL INJECTION PREVENTION TEST
+# =========================================================================
+
+# 1.1. Search Safe (Aman dari SQL Injection karena parameterized)
+GET {{host}}/api/security/sql-safe?name=iPhone
+
+###
+
+# 1.2. Search Raw Safe (Aman menggunakan interpolation)
+GET {{host}}/api/security/sql-raw-safe?name=Samsung
+
+###
+
+# =========================================================================
+# 2. XSS (CROSS-SITE SCRIPTING) PREVENTION TEST
+# =========================================================================
+
+# 2.1. Kirim input script XSS berbahaya (Akan disanitasi)
+POST {{host}}/api/security/xss-sanitize
+Content-Type: application/json
+
+{
+  "comment": "<script>alert('Hacked!');</script> Halo teman-teman!"
+}
+
+###
+
+# =========================================================================
+# 3. RATE LIMITING TEST
+# =========================================================================
+# Eksekusi request ini secara cepat berturut-turut (> 5x dalam 10 detik).
+# Request ke-6 akan menghasilkan: 429 Too Many Requests.
+GET {{host}}/api/security/rate-limited

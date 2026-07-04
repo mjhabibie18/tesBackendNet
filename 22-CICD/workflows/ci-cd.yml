@@ -1,0 +1,49 @@
+# ============================================================
+# ci-cd.yml — GitHub Actions CI/CD Pipeline Template
+# ============================================================
+# Letakkan file ini di: .github/workflows/ci-cd.yml
+# Pipeline ini otomatis melakukan Restore, Build, Test,
+# dan pembuatan Docker Image pada event Push ke branch main.
+# ============================================================
+
+name: .NET Core CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build, Test, and Package
+    runs-on: ubuntu-latest
+
+    steps:
+    # ── 1. Checkout repository ──────────────────────────────────
+    - name: Checkout Source Code
+      uses: actions/checkout@v4
+
+    # ── 2. Setup SDK .NET 8 ─────────────────────────────────────
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    # ── 3. Restore NuGet packages ───────────────────────────────
+    - name: Restore Dependencies
+      run: dotnet restore
+
+    # ── 4. Build projects ───────────────────────────────────────
+    - name: Build Application
+      run: dotnet build --no-restore --configuration Release
+
+    # ── 5. Run unit/integration tests ───────────────────────────
+    - name: Run Automated Tests
+      run: dotnet test --no-build --configuration Release --verbosity normal
+
+    # ── 6. Build Docker Image (Hanya jika push ke main) ─────────
+    - name: Build Docker Image
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        docker build -t tesbackendnet-api:latest -f 21-Docker/Dockerfile 21-Docker/

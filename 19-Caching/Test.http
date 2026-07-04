@@ -1,0 +1,43 @@
+### 🧪 Caching HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# =========================================================================
+# 1. IN-MEMORY CACHE TEST (IMemoryCache)
+# =========================================================================
+
+# 1.1. Ambil data pertama kali (Akan lambat ~1 detik - Cache Miss)
+GET {{host}}/api/caching/memory
+
+###
+
+# 1.2. Ambil data kedua kali (Sangat cepat ~1-5ms - Cache Hit)
+GET {{host}}/api/caching/memory
+
+###
+
+# 1.3. Invalidate Memory Cache
+DELETE {{host}}/api/caching/memory/invalidate
+
+###
+
+# =========================================================================
+# 2. DISTRIBUTED CACHE TEST (IDistributedCache)
+# =========================================================================
+
+# 2.1. Ambil data distributed pertama kali (Cache Miss)
+GET {{host}}/api/caching/distributed
+
+###
+
+# 2.2. Ambil data distributed kedua kali (Cache Hit)
+GET {{host}}/api/caching/distributed
+
+###
+
+# 2.3. Invalidate Distributed Cache
+DELETE {{host}}/api/caching/distributed/invalidate

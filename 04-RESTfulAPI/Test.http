@@ -1,0 +1,70 @@
+### 🧪 RESTful API, HATEOAS, Content Negotiation, and Versioning HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# =========================================================================
+# 1. API VERSIONING TEST
+# =========================================================================
+
+# 1.1. Akses API V1 (Mendapatkan Produk dengan harga normal + HATEOAS)
+GET {{host}}/api/v1/products
+Accept: application/json
+
+###
+
+# 1.2. Akses API V2 (Mendapatkan Produk dengan harga diskon 10% promo)
+GET {{host}}/api/v2/products
+Accept: application/json
+
+###
+
+# 1.3. Akses V1 menggunakan Query String Versioning (?api-version=1.0)
+# (Menggunakan route segment fallback jika diizinkan)
+GET {{host}}/api/products?api-version=1.0
+Accept: application/json
+
+###
+
+# =========================================================================
+# 2. CONTENT NEGOTIATION TEST
+# =========================================================================
+
+# 2.1. Request V1 dalam format JSON (Default)
+GET {{host}}/api/v1/products/1
+Accept: application/json
+
+###
+
+# 2.2. Request V1 dalam format XML (Content Negotiation)
+# Server akan secara otomatis merender XML karena AddXmlSerializerFormatters()
+GET {{host}}/api/v1/products/1
+Accept: application/xml
+
+###
+
+# 2.3. Request dengan format yang tidak disupport (Harus return 406 Not Acceptable)
+# Karena ReturnHttpNotAcceptable = true dikonfigurasi di Program.cs
+GET {{host}}/api/v1/products/1
+Accept: text/plain
+
+###
+
+# =========================================================================
+# 3. HATEOAS TEST & CRUD ACTIONS
+# =========================================================================
+
+# 3.1. Buat Produk Baru V1
+POST {{host}}/api/v1/products
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Sony WH-1000XM4",
+  "description": "Noise cancelling wireless headphones",
+  "price": 4200000,
+  "stock": 15
+}

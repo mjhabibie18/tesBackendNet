@@ -1,0 +1,36 @@
+### 🧪 ASP.NET Core Framework HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Test DI Lifetimes (Bandingkan GUID)
+# Jalankan request ini 2x, perhatikan:
+# - GUID transient1 vs transient2 berbeda.
+# - GUID scoped1 vs scoped2 sama, tapi berganti saat request berikutnya.
+# - GUID singleton1 vs singleton2 selalu sama di setiap request.
+GET {{host}}/api/framework/lifetimes
+
+###
+
+# 2. Test Validation Filter (Valid Model)
+POST {{host}}/api/framework/validate
+Content-Type: application/json
+
+{
+  "name": "Habibie",
+  "value": 42
+}
+
+###
+
+# 3. Test Validation Filter (Invalid Model)
+POST {{host}}/api/framework/validate
+Content-Type: application/json
+
+{
+  "name": "Hb",
+  "value": 150
+}

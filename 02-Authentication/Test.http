@@ -1,0 +1,194 @@
+##############################################################
+# Test.http — Authentication Endpoints
+##############################################################
+# URUTAN TESTING:
+# 1. Register → 2. Login → 3. Copy accessToken → 4. Test Profile
+# 5. Tunggu token expire → 6. Refresh → 7. Logout
+##############################################################
+
+@baseUrl = https://localhost:7002
+
+###############################################################
+# 1. REGISTER — Daftarkan user baru
+###############################################################
+
+### Register user biasa
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+###
+
+### Register user admin (role akan tetap "User" — ubah manual di database atau tambah logic)
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Admin123!",
+  "confirmPassword": "Admin123!",
+  "firstName": "Admin",
+  "lastName": "User"
+}
+
+###
+
+### Register dengan email yang sama → Harus return 409 Conflict
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "Duplicate"
+}
+
+###
+
+### Register dengan password lemah → Harus return 400 Bad Request
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "weak@example.com",
+  "password": "123",
+  "confirmPassword": "123",
+  "firstName": "Weak"
+}
+
+###
+
+### Register dengan confirmPassword tidak sama → Harus return 400
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "mismatch@example.com",
+  "password": "Password123!",
+  "confirmPassword": "DifferentPassword!",
+  "firstName": "Mismatch"
+}
+
+###############################################################
+# 2. LOGIN — Dapatkan Access Token + Refresh Token
+###############################################################
+
+### Login berhasil
+# COPY accessToken dan refreshToken dari response!
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!"
+}
+
+###
+
+### Login dengan password salah → Harus return 401 Unauthorized
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "WrongPassword!"
+}
+
+###
+
+### Login dengan email tidak terdaftar → Harus return 401 (sama pesannya!)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "notexist@example.com",
+  "password": "Password123!"
+}
+
+###############################################################
+# 3. PROFILE — Endpoint protected (butuh JWT)
+###############################################################
+
+### Akses profile TANPA token → Harus return 401
+GET {{baseUrl}}/api/auth/profile
+
+###
+
+### Akses profile DENGAN token → Harus return 200
+### Ganti {{accessToken}} dengan token dari response login
+@accessToken = PASTE_YOUR_ACCESS_TOKEN_HERE
+
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer {{accessToken}}
+
+###
+
+### Akses dengan token tidak valid → Harus return 401
+GET {{baseUrl}}/api/auth/profile
+Authorization: Bearer token.tidak.valid.ini
+
+###############################################################
+# 4. REFRESH TOKEN — Perbarui Access Token
+###############################################################
+
+### Refresh token (ganti dengan refresh token dari login)
+@refreshToken = PASTE_YOUR_REFRESH_TOKEN_HERE
+
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+
+### Refresh dengan token tidak valid → Harus return 401
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "invalid-refresh-token"
+}
+
+###############################################################
+# 5. LOGOUT — Revoke Refresh Token
+###############################################################
+
+### Logout (revoke refresh token)
+POST {{baseUrl}}/api/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###
+
+### Coba refresh setelah logout → Harus return 401
+POST {{baseUrl}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###############################################################
+# EXPECTED RESPONSES
+###############################################################
+# Register OK  → 201 Created + { data: { id, email, firstName, role, createdAt } }
+# Register 409 → 409 Conflict + { email sudah terdaftar }
+# Login OK     → 200 OK + { data: { user: {...}, tokens: { accessToken, refreshToken, ... } } }
+# Login 401    → 401 Unauthorized + { Email atau password salah }
+# Profile OK   → 200 OK + { data: { id, email, firstName, role } }
+# Profile 401  → 401 Unauthorized (tanpa body atau WWW-Authenticate header)
+# Refresh OK   → 200 OK + { data: { accessToken (baru), refreshToken (baru), ... } }
+# Logout OK    → 200 OK + { message: "Logout berhasil" }

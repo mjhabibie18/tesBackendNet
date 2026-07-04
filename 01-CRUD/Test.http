@@ -1,0 +1,234 @@
+##############################################################
+# Test.http — Test Semua Endpoint CRUD
+##############################################################
+# Cara menggunakan:
+#   1. Install ekstensi "REST Client" di VS Code
+#   2. Buka file ini di VS Code
+#   3. Klik "Send Request" di atas setiap request
+#   4. Lihat response di panel kanan
+#
+# Pastikan API sudah berjalan:
+#   cd Source && dotnet run
+#   Cek port di terminal output
+##############################################################
+
+@baseUrl = https://localhost:7001
+@contentType = application/json
+
+###############################################################
+# HEALTH CHECK — Cek apakah API berjalan
+###############################################################
+
+### Swagger UI (buka di browser)
+# GET {{baseUrl}}/swagger
+
+###############################################################
+# 1. GET ALL PRODUCTS — Ambil semua product
+###############################################################
+
+### Ambil semua product (default: page 1, pageSize 10)
+GET {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+###
+
+### Ambil dengan pagination
+GET {{baseUrl}}/api/products?page=1&pageSize=5
+Content-Type: {{contentType}}
+
+###
+
+### Cari berdasarkan keyword
+GET {{baseUrl}}/api/products?search=laptop
+Content-Type: {{contentType}}
+
+###
+
+### Sort berdasarkan harga (murah ke mahal)
+GET {{baseUrl}}/api/products?sortBy=price&sortDesc=false
+Content-Type: {{contentType}}
+
+###
+
+### Sort berdasarkan harga (mahal ke murah)
+GET {{baseUrl}}/api/products?sortBy=price&sortDesc=true
+Content-Type: {{contentType}}
+
+###
+
+### Sort berdasarkan nama A-Z
+GET {{baseUrl}}/api/products?sortBy=name&sortDesc=false
+Content-Type: {{contentType}}
+
+###
+
+### Filter berdasarkan range harga
+GET {{baseUrl}}/api/products?minPrice=500000&maxPrice=5000000
+Content-Type: {{contentType}}
+
+###
+
+### Kombinasi: search + sort + pagination + filter
+GET {{baseUrl}}/api/products?search=&sortBy=price&sortDesc=true&page=1&pageSize=3&minPrice=100000
+Content-Type: {{contentType}}
+
+###############################################################
+# 2. GET PRODUCT BY ID — Ambil satu product
+###############################################################
+
+### Ambil product ID 1
+GET {{baseUrl}}/api/products/1
+Content-Type: {{contentType}}
+
+###
+
+### Ambil product ID 2
+GET {{baseUrl}}/api/products/2
+Content-Type: {{contentType}}
+
+###
+
+### Coba ID yang tidak ada → Harus return 404
+GET {{baseUrl}}/api/products/999
+Content-Type: {{contentType}}
+
+###############################################################
+# 3. POST — Buat product baru
+###############################################################
+
+### Buat product baru yang valid
+POST {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+{
+  "name": "SSD Samsung 970 EVO 1TB",
+  "description": "SSD NVMe M.2, kecepatan baca 3500MB/s, tulis 3300MB/s",
+  "price": 1850000,
+  "stock": 25
+}
+
+###
+
+### Buat product tanpa description (opsional)
+POST {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+{
+  "name": "USB Hub 7-Port",
+  "price": 250000,
+  "stock": 100
+}
+
+###
+
+### Coba buat product dengan nama duplikat → Harus return 409 Conflict
+POST {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+{
+  "name": "Laptop Gaming ASUS ROG",
+  "price": 30000000,
+  "stock": 5
+}
+
+###
+
+### Coba buat product tanpa name → Harus return 400 Bad Request
+POST {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+{
+  "name": "",
+  "price": 100000,
+  "stock": 10
+}
+
+###
+
+### Coba buat product dengan harga negatif → Harus return 400 Bad Request
+POST {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+{
+  "name": "Product Test",
+  "price": -1000,
+  "stock": 10
+}
+
+###############################################################
+# 4. PUT — Update product
+###############################################################
+
+### Update product ID 1
+PUT {{baseUrl}}/api/products/1
+Content-Type: {{contentType}}
+
+{
+  "name": "Laptop Gaming ASUS ROG Strix G16",
+  "description": "Laptop gaming premium dengan RTX 4080, RAM 32GB DDR5, SSD 1TB NVMe",
+  "price": 35000000,
+  "stock": 10
+}
+
+###
+
+### Update product ID 2
+PUT {{baseUrl}}/api/products/2
+Content-Type: {{contentType}}
+
+{
+  "name": "Mouse Wireless Logitech MX Master 3S",
+  "description": "Mouse wireless terbaru dengan klik senyap dan Bluetooth multi-device",
+  "price": 1450000,
+  "stock": 75
+}
+
+###
+
+### Coba update ID yang tidak ada → Harus return 404
+PUT {{baseUrl}}/api/products/999
+Content-Type: {{contentType}}
+
+{
+  "name": "Product Tidak Ada",
+  "price": 100000,
+  "stock": 1
+}
+
+###############################################################
+# 5. DELETE — Soft Delete product
+###############################################################
+
+### Delete (soft) product ID 3
+DELETE {{baseUrl}}/api/products/3
+Content-Type: {{contentType}}
+
+###
+
+### Cek product ID 3 setelah delete → Harus return 404
+GET {{baseUrl}}/api/products/3
+Content-Type: {{contentType}}
+
+###
+
+### Cek list semua product → ID 3 tidak muncul
+GET {{baseUrl}}/api/products
+Content-Type: {{contentType}}
+
+###
+
+### Coba delete ID yang tidak ada → Harus return 404
+DELETE {{baseUrl}}/api/products/999
+Content-Type: {{contentType}}
+
+###############################################################
+# EXPECTED RESPONSES
+###############################################################
+# GET All   → 200 OK   + { success: true, data: { data: [...], totalCount, ... } }
+# GET One   → 200 OK   + { success: true, data: { id, name, price, ... } }
+# GET 404   → 404      + { success: false, message: "Product ... tidak ditemukan" }
+# POST OK   → 201 Created + { success: true, data: { id: NEW_ID, ... } }
+# POST 400  → 400 Bad Request + { title: "One or more validation errors" }
+# POST 409  → 409 Conflict   + { success: false, message: "Product ... sudah ada" }
+# PUT OK    → 200 OK   + { success: true, data: { updated product } }
+# DELETE OK → 200 OK   + { success: true, message: "Product berhasil dihapus" }

@@ -1,0 +1,20 @@
+### 🧪 API Response HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Test Single Resource Response (200 OK)
+GET {{host}}/api/responses/single
+
+###
+
+# 2. Test Paginated Response (200 OK)
+GET {{host}}/api/responses/paginated?page=1&pageSize=5
+
+###
+
+# 3. Test Error Response (400 Bad Request)
+GET {{host}}/api/responses/error

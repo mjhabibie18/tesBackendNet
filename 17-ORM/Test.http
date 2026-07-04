@@ -1,0 +1,30 @@
+### 🧪 Entity Framework Core ORM HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Eager Loading (Mengambil Produk + JOIN Category)
+GET {{host}}/api/orm/products-eager
+
+###
+
+# 2. Explicit Loading (Mengambil Produk dan memuat Category secara manual)
+GET {{host}}/api/orm/product-explicit/1
+
+###
+
+# 3. Read Only Query (Menggunakan AsNoTracking)
+GET {{host}}/api/orm/products-readonly
+
+###
+
+# 4. Update Price (Mengamati perubahan State Change Tracker)
+PUT {{host}}/api/orm/update-price/2?newPrice=900000
+
+###
+
+# 5. Raw SQL Query (Aman dari SQL Injection)
+GET {{host}}/api/orm/raw-sql?minPrice=500000

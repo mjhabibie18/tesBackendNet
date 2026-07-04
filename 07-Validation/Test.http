@@ -1,0 +1,39 @@
+### 🧪 Validation HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# =========================================================================
+# 1. TEST REGISTRASI - VALID (SEMUA SUKSES)
+# =========================================================================
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "email": "budi.santoso@gmail.com",
+  "username": "budi_santoso",
+  "password": "Password123",
+  "confirmPassword": "Password123",
+  "phoneNumber": "+628123456789",
+  "age": 25
+}
+
+###
+
+# =========================================================================
+# 2. TEST REGISTRASI - INVALID (PASSWORD TIDAK COCOK, UMUR DI BAWAH 17)
+# =========================================================================
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "email": "invalid-email-format",
+  "username": "bu",
+  "password": "simplepassword",
+  "confirmPassword": "otherpassword",
+  "phoneNumber": "abc1234",
+  "age": 15
+}

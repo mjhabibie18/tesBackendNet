@@ -1,0 +1,21 @@
+### 🧪 Swagger Documentation HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Get Product by ID (200 OK)
+GET {{host}}/api/products/1
+
+###
+
+# 2. Get Product by ID (404 Not Found)
+GET {{host}}/api/products/12
+
+###
+
+# 3. Get OpenAPI Swagger JSON Spec
+# Data ini digunakan oleh Postman untuk mengimpor kumpulan collection secara otomatis.
+GET {{host}}/swagger/v1/swagger.json

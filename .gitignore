@@ -1,0 +1,129 @@
+## TesBackendNet — .gitignore
+## Standard .NET + IDE gitignore
+
+# ========================
+# Build outputs
+# ========================
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# ========================
+# .NET Core / ASP.NET Core
+# ========================
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/packages/
+nuget.exe
+**/[Pp]ackages/
+!**/[Pp]ackages/build/
+*.nuspec
+
+# Publish output
+**/publish/
+**/PublishProfiles/
+
+# Entity Framework Migrations (keep tracked)
+# Uncomment below jika tidak ingin commit migrations
+# **/Migrations/
+
+# ========================
+# Visual Studio
+# ========================
+.vs/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.VC.VC.opendb
+_ReSharper*/
+*.DotSettings.user
+.idea/
+*.sln.ide
+
+# ========================
+# VS Code
+# ========================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.history/
+
+# ========================
+# Environment & Secrets
+# ========================
+# JANGAN COMMIT FILE INI!
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+appsettings.Production.json
+appsettings.Staging.json
+secrets.json
+*.pfx
+*.p12
+*.key
+
+# ========================
+# Database
+# ========================
+*.mdf
+*.ldf
+*.ndf
+
+# ========================
+# OS Generated
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ========================
+# Docker
+# ========================
+.docker/
+docker-compose.override.yml
+
+# ========================
+# Test Results
+# ========================
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+
+# ========================
+# Rider
+# ========================
+.idea/
+*.sln.iml

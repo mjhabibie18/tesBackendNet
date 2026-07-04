@@ -1,0 +1,48 @@
+### 🧪 Database Design & Constraints HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Ambil List User Beserta Relasi Pesanan
+GET {{host}}/api/design/users
+
+###
+
+# 2. Buat User Valid (Lolos Seluruh Constraint)
+POST {{host}}/api/design/users
+Content-Type: application/json
+
+{
+  "username": "eko_patrio",
+  "email": "eko@gmail.com",
+  "age": 35
+}
+
+###
+
+# 3. Buat User dengan Email Duplikat (Melanggar UNIQUE Constraint)
+# Skenario: Error DB dibalikkan dengan penjelasan penolakan UNIQUE index
+POST {{host}}/api/design/users
+Content-Type: application/json
+
+{
+  "username": "eko_baru",
+  "email": "habibie@gmail.com",
+  "age": 25
+}
+
+###
+
+# 4. Buat User dengan Umur Tidak Valid (Melanggar CHECK Constraint CK_Users_Age)
+# Skenario: DB membatalkan simpan data karena Age diluar rentang 0-150
+POST {{host}}/api/design/users
+Content-Type: application/json
+
+{
+  "username": "bayi_ajaib",
+  "email": "bayi@gmail.com",
+  "age": 200
+}

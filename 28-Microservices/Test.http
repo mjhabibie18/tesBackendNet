@@ -1,0 +1,22 @@
+### 🧪 Microservices Communication HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Panggil Product Service Internal Langsung (Port yang sama untuk demo)
+GET {{host}}/api/products/1
+
+###
+
+# 2. Buat Order Baru (Order Service memanggil Product Service via Resilient HTTP)
+# Skenario: Produk ada. Response 201 Created & Event ter-publish.
+POST {{host}}/api/orders?productId=1&quantity=3
+
+###
+
+# 3. Buat Order Baru (Produk tidak terdaftar)
+# Skenario: Product Service return 404. Order Service return 400 Bad Request.
+POST {{host}}/api/orders?productId=99&quantity=1

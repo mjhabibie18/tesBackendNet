@@ -1,0 +1,111 @@
+##############################################################
+# TesBackendNet — Docker Compose (OPSIONAL)
+##############################################################
+# File ini OPSIONAL. Default project menggunakan SQL Server Local.
+# Gunakan file ini jika ingin menjalankan dependencies via Docker.
+#
+# Cara menggunakan:
+#   docker-compose up -d
+#
+# Cara menghentikan:
+#   docker-compose down
+#
+# Cara menghentikan + hapus data:
+#   docker-compose down -v
+##############################################################
+
+version: '3.9'
+
+services:
+
+  # ============================================================
+  # SQL SERVER
+  # Default port: 1433 (sama dengan SQL Server lokal)
+  # Gunakan port 1434 agar tidak konflik dengan SQL Server lokal
+  # ============================================================
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tesbackendnet_sqlserver
+    environment:
+      SA_PASSWORD: "TesBackendNet@2024!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1434:1433"   # host:container — akses via localhost,1434
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P TesBackendNet@2024! -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ============================================================
+  # REDIS — untuk modul Caching (19-Caching)
+  # ============================================================
+  redis:
+    image: redis:7-alpine
+    container_name: tesbackendnet_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ============================================================
+  # RABBITMQ — untuk modul Queue (20-Queue)
+  # Management UI: http://localhost:15672 (guest/guest)
+  # ============================================================
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: tesbackendnet_rabbitmq
+    ports:
+      - "5672:5672"       # AMQP protocol
+      - "15672:15672"     # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: unless-stopped
+
+  # ============================================================
+  # REDIS COMMANDER — GUI untuk Redis (opsional, dev only)
+  # Akses: http://localhost:8081
+  # ============================================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: tesbackendnet_redis_commander
+    environment:
+      REDIS_HOSTS: "local:redis:6379"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+# ============================================================
+# VOLUMES — persistent storage
+# ============================================================
+volumes:
+  sqlserver_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+# ============================================================
+# NETWORKS
+# ============================================================
+networks:
+  default:
+    name: tesbackendnet_network

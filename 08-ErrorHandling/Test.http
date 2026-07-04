@@ -1,0 +1,30 @@
+### 🧪 Error Handling HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Test Endpoint Normal (200 OK)
+GET {{host}}/api/demo/ok
+
+###
+
+# 2. Test Bad Request (400 Bad Request)
+GET {{host}}/api/demo/bad-request
+
+###
+
+# 3. Test Not Found (404 Not Found)
+GET {{host}}/api/demo/not-found
+
+###
+
+# 4. Test Conflict (409 Conflict)
+GET {{host}}/api/demo/conflict
+
+###
+
+# 5. Test Server Error (500 Internal Server Error)
+GET {{host}}/api/demo/server-error

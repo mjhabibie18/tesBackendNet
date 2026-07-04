@@ -1,0 +1,30 @@
+### 🧪 Database & Entity Framework Core HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Ambil Semua Posts (Menggunakan LINQ + JOIN)
+GET {{host}}/api/database/posts
+
+###
+
+# 2. Cari Post Menggunakan Filter Pencarian
+GET {{host}}/api/database/posts?search=ASP.NET
+
+###
+
+# 3. Ambil Statistik Data (Aggregate Queries)
+GET {{host}}/api/database/stats
+
+###
+
+# 4. Uji Coba Transaksi Sukses (Commit)
+POST {{host}}/api/database/transaction-demo?triggerError=false
+
+###
+
+# 5. Uji Coba Transaksi Gagal (Rollback - Database tetap aman/bersih)
+POST {{host}}/api/database/transaction-demo?triggerError=true

@@ -1,0 +1,22 @@
+### 🧪 Logging HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Pemicu Semua Level Logging
+# Buka console log terminal atau periksa file di folder: 23-Logging/Source/logs/
+GET {{host}}/api/logging/levels
+
+###
+
+# 2. Test Structured Logging
+GET {{host}}/api/logging/structured?userId=9982&role=SeniorArchitect
+
+###
+
+# 3. Test Log Exception (500 Internal Server Error)
+# Periksa bagaimana Serilog mencatat objek Exception beserta Stack Trace secara lengkap.
+GET {{host}}/api/logging/exception

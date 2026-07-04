@@ -1,0 +1,39 @@
+### 🧪 File Upload HTTP Test Client
+# Catatan: Pengetesan upload multipart/form-data via HTTP Client
+# membutuhkan file fisik lokal di PC Anda untuk dilampirkan.
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Upload File Tunggal (Single File)
+# Gantilah path 'dummy.png' di bawah dengan path file gambar nyata jika diperlukan
+POST {{host}}/api/files/upload
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="dummy.png"
+Content-Type: image/png
+
+< ./dummy.png
+--WebAppBoundary--
+
+###
+
+# 2. Upload Multiple Files
+POST {{host}}/api/files/upload-multiple
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="dummy1.png"
+Content-Type: image/png
+
+< ./dummy.png
+--WebAppBoundary
+Content-Disposition: form-data; name="files"; filename="dummy2.png"
+Content-Type: image/png
+
+< ./dummy.png
+--WebAppBoundary--

@@ -1,0 +1,12 @@
+### 🧪 Environment & Configuration HTTP Test Client
+# Catatan: Gunakan launchSettings.json profile 'Development' atau 'Staging'
+# untuk melihat perbedaan output Connection String dan EnvironmentName.
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Ambil Informasi Konfigurasi Aktif
+GET {{host}}/api/config/info

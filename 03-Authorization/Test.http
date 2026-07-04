@@ -1,0 +1,70 @@
+### Test Authorization API (RBAC)
+@host = https://localhost:5001
+
+### 1. Login sebagai USER biasa
+# @name loginUser
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!"
+}
+
+### Ambil Token User
+@userToken = {{loginUser.response.body.data.tokens.accessToken}}
+
+### 2. Login sebagai MANAGER
+# @name loginManager
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "manager@example.com",
+  "password": "Password123!"
+}
+
+### Ambil Token Manager
+@managerToken = {{loginManager.response.body.data.tokens.accessToken}}
+
+### 3. Login sebagai ADMIN
+# @name loginAdmin
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "Password123!"
+}
+
+### Ambil Token Admin
+@adminToken = {{loginAdmin.response.body.data.tokens.accessToken}}
+
+
+### ==============================================
+### TEST RBAC ENDPOINTS
+### ==============================================
+
+### 4. Akses Dashboard (Boleh Admin & Manager, dilarang untuk User)
+### Pake Token User (Harusnya 403 Forbidden)
+GET {{host}}/api/admin/dashboard
+Authorization: Bearer {{userToken}}
+
+### Pake Token Manager (Harusnya 200 OK)
+GET {{host}}/api/admin/dashboard
+Authorization: Bearer {{managerToken}}
+
+
+### 5. Akses Laporan Keuangan (HANYA Admin)
+### Pake Token Manager (Harusnya 403 Forbidden)
+GET {{host}}/api/admin/reports
+Authorization: Bearer {{managerToken}}
+
+### Pake Token Admin (Harusnya 200 OK)
+GET {{host}}/api/admin/reports
+Authorization: Bearer {{adminToken}}
+
+
+### 6. Akses Publik (Tidak perlu token)
+### Harusnya 200 OK (meski tanpa Authorization header)
+GET {{host}}/api/admin/public-info

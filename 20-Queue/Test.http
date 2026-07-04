@@ -1,0 +1,29 @@
+### 🧪 Queue & Background Jobs HTTP Test Client
+
+# Konfigurasi Environment
+@hostname = localhost
+@port = 5000
+@host = http://{{hostname}}:{{port}}
+
+###
+# 1. Fire-and-Forget Job (Welcome Email)
+# Response akan kembali secara instan. Periksa log konsol aplikasi
+# untuk melihat proses pengiriman email berjalan selama 3 detik di background.
+POST {{host}}/api/jobs/welcome?email=budi@gmail.com&username=budi123
+
+###
+
+# 2. Delayed Job (Invoice Order)
+# Invoice akan dikirim secara otomatis setelah jeda waktu 10 detik.
+POST {{host}}/api/jobs/invoice/8854?email=budi@gmail.com
+
+###
+
+# 3. Register Recurring Job (Backup database setiap 1 menit)
+# Daftarkan job terjadwal. Periksa log konsol setiap menit untuk melihat backup berjalan.
+POST {{host}}/api/jobs/backup/register
+
+###
+
+# 4. Hentikan/Hapus Recurring Job
+DELETE {{host}}/api/jobs/backup/remove
