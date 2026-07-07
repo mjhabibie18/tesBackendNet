@@ -13,6 +13,7 @@ using TesBackendNet.CRUD.Common;
 using TesBackendNet.CRUD.Data;
 using TesBackendNet.CRUD.Repositories;
 using TesBackendNet.CRUD.Services;
+using TesBackendNet.CRUD.Middlewares;
 
 // ── WebApplication.CreateBuilder ──────────────────────────────
 // Membuat "builder" yang akan mengkonfigurasi aplikasi.

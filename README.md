@@ -3,9 +3,9 @@
 # 🚀 TesBackendNet
 
 **Repository Belajar, Latihan & Template Backend Developer**
-**ASP.NET Core (.NET 8) · SQL Server · Entity Framework Core**
+**ASP.NET Core (.NET 9) · SQL Server · Entity Framework Core**
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?style=for-the-badge&logo=dotnet)](https://dotnet.microsoft.com/)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-Developer-CC2927?style=for-the-badge&logo=microsoftsqlserver)](https://www.microsoft.com/sql-server)
 [![EF Core](https://img.shields.io/badge/EF%20Core-8.0-512BD4?style=for-the-badge)](https://docs.microsoft.com/ef/core/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
@@ -50,11 +50,11 @@ Repository ini dirancang sebagai **panduan belajar sekaligus template profesiona
 
 ## 📖 Penjelasan Proyek
 
-**TesBackendNet** adalah repositori modular yang berisi kumpulan materi, latihan, dan *template* backend yang dipisahkan berdasarkan topik spesifik. 
+**TesBackendNet** adalah repositori modular yang berisi kumpulan materi, latihan, dan *template* backend yang dipisahkan berdasarkan topik spesifik.
 Setiap modul di dalam proyek ini memiliki struktur lengkap yang terdiri dari:
 - **Teori Mendalam (`Theory.md`)** beserta diagram/alur logika.
 - **Cheat Sheet (`CheatSheet.md`)** berupa *snippet* kode siap salin-tempel.
-- **Source Code (`Source/`)** yang merupakan *project* ASP.NET Core yang **100% bisa langsung dijalankan**.
+- **Source Code (`Source/`)** — Project ASP.NET Core yang **100% bisa langsung dijalankan**, dengan komentar **bergaya teks-buku** yang menjelaskan *apa, mengapa, dan bagaimana* setiap baris kode ditulis. Cocok digunakan sebagai bahan belajar mandiri.
 - **File Test (`Test.http`)** untuk menguji coba *endpoint* secara langsung.
 
 Sifat proyek ini sangat modular, artinya Anda bisa dengan mudah mengambil modul A (misal: CRUD) dan menggabungkannya dengan modul B (misal: JWT Auth) untuk menyelesaikan sebuah *study case* dengan sangat cepat.
@@ -180,9 +180,21 @@ docker-compose down
 
 ## 🗄️ Konfigurasi Database
 
-### Opsi 1: SQL Server Local (Default)
+### Opsi 1: SQL Server LocalDB (Bawaan Visual Studio) - *Rekomendasi*
 
 Buka `appsettings.Development.json` di setiap modul dan ubah connection string:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=TesBackendNet_NAMA_MODUL;Trusted_Connection=True;MultipleActiveResultSets=true;"
+  }
+}
+```
+
+### Opsi 2: SQL Server Developer/Express
+
+Jika Anda menginstal SQL Server secara terpisah, gunakan server `.` atau `.\\SQLEXPRESS`:
 
 ```json
 {
@@ -192,7 +204,7 @@ Buka `appsettings.Development.json` di setiap modul dan ubah connection string:
 }
 ```
 
-### Opsi 2: Docker SQL Server
+### Opsi 3: Docker SQL Server
 
 ```json
 {
@@ -208,13 +220,51 @@ Buka `appsettings.Development.json` di setiap modul dan ubah connection string:
 
 Contoh soal: **"Buat CRUD Product dengan JWT Authentication dan Role Admin"**
 
-```
+```text
 1. Ambil ProductController.cs dari → 01-CRUD/Source/Controllers/
 2. Ambil JWT setup dari           → 02-Authentication/Source/
 3. Ambil Role Policy dari         → 03-Authorization/Source/
 4. Gabungkan di project baru
 5. Selesai! 🎉
 ```
+
+**Bagaimana Databasenya jika digabung?**
+
+Jika Anda membangun aplikasi gabungan (Monolitik), Anda tidak perlu menggunakan database yang terpisah-pisah. Cukup satukan semuanya ke dalam **satu database utama**. 
+
+Berikut adalah panduan langkah demi langkahnya:
+
+**1. Buat Satu Connection String Saja**
+Di file `appsettings.json` pada *project* gabungan Anda, gunakan satu nama database akhir.
+```json
+"DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=TokoOnlineDB;Trusted_Connection=True;MultipleActiveResultSets=true;"
+```
+
+**2. Kumpulkan Semua Model (Class)**
+Salin seluruh *class* entitas dari berbagai modul (misalnya `User.cs` dari Auth, `Product.cs` dari CRUD) ke dalam satu folder `Models` di *project* baru Anda.
+
+**3. Daftarkan ke Dalam Satu DbContext Utama**
+Kumpulkan semua tabel tersebut ke dalam satu file `AppDbContext`.
+```csharp
+public class AppDbContext : DbContext 
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
+
+    // Tabel dari Modul Auth
+    public DbSet<User> Users { get; set; }
+    
+    // Tabel dari Modul CRUD
+    public DbSet<Product> Products { get; set; }
+}
+```
+
+**4. Jalankan Migrasi**
+Buka terminal dan jalankan perintah Entity Framework berikut:
+```bash
+dotnet ef migrations add InitialGabungan
+dotnet ef database update
+```
+**Selesai!** EF Core akan otomatis mendeteksi kode Anda dan menciptakan **satu database utuh (`TokoOnlineDB`)** yang langsung berisi tabel `Users` dan `Products`. Anda kini bisa dengan bebas membuat relasi/JOIN antar tabel tersebut.
 
 ---
 
@@ -283,6 +333,17 @@ Lihat folder [InterviewQuestions/](./InterviewQuestions/) untuk **100+ soal inte
 - ✅ Kode C# siap pakai
 - ✅ Alternatif solusi
 
+### 🧑‍💻 Coding Challenges Interaktif
+
+Jalankan `InterviewQuestions/Source/` sebagai **Console App** untuk 30 soal coding C# yang langsung tereksekusi:
+
+```bash
+cd InterviewQuestions/Source
+dotnet run
+```
+
+Mencakup kategori: **String Manipulation**, **Array & Collection**, **LINQ**, **Recursion & DP**, **OOP & Design Patterns** (Singleton, Builder, Strategy, ISP).
+
 ---
 
 ## 🛠️ Tech Stack
@@ -305,13 +366,16 @@ Lihat folder [InterviewQuestions/](./InterviewQuestions/) untuk **100+ soal inte
 ## 📖 Cara Belajar yang Disarankan
 
 ```
-1. Baca README.md → Pahami konsep & tujuan
-2. Baca Theory.md → Pelajari teori mendalam
-3. Baca Source/   → Pelajari implementasi + penjelasan kode
-4. Jalankan Test.http → Coba semua endpoint
-5. Baca CheatSheet.md → Hafalkan snippet penting
-6. Kerjakan soal di InterviewQuestions/ → Latihan
+1. Baca README.md      → Pahami konsep & tujuan modul
+2. Baca Theory.md      → Pelajari teori mendalam + diagram
+3. Baca Source/        → Pelajari implementasi kode langkah demi langkah
+                          (Komentar teks-buku menjelaskan setiap baris)
+4. Jalankan Test.http  → Coba semua endpoint di VS Code REST Client
+5. Baca CheatSheet.md  → Hafalkan snippet penting untuk interview
+6. dotnet run          → Jalankan InterviewQuestions/Source untuk latihan 30 soal coding
 ```
+
+> 💡 **Tips:** Setiap file Source Code memiliki komentar bergaya teks-buku. Baca komentar dari atas ke bawah — Anda akan langsung memahami desain arsitektur, keputusan teknis, dan konsep yang diterapkan tanpa perlu buku referensi tambahan.
 
 ---
 

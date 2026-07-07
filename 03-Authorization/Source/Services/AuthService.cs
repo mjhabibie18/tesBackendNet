@@ -53,6 +53,8 @@ public class AuthService : IAuthService
             PasswordHash = passwordHash,
             FirstName    = dto.FirstName.Trim(),
             LastName     = dto.LastName?.Trim(),
+            // jika menggunakan hcak kecil untuk testing, gunakan [MODIFIKASI UNTUK TESTING]: Jika email mengandung 'admin', jadikan dia Admin.
+            //Role         = dto.Email.ToLower().Contains("admin") ? "Admin" : "User", 
             Role         = "User", // Selalu assign 'User' untuk pendaftaran mandiri (security constraint)
             IsActive     = true,
             CreatedAt    = DateTime.UtcNow

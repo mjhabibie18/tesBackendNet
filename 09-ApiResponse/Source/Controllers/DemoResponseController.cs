@@ -48,7 +48,7 @@ public class DemoResponseController : ControllerBase
     public IActionResult GetSingle()
     {
         var product  = new { Id = 1, Name = "PlayStation 5 Slim", Price = 8500000 };
-        var response = ApiResponse.Success(product, "Berhasil mendapatkan detail produk.", GetTraceId());
+        var response = Common.ApiResponse.Success(product, "Berhasil mendapatkan detail produk.", GetTraceId());
         return Ok(response);
     }
 
@@ -79,7 +79,7 @@ public class DemoResponseController : ControllerBase
         var paginatedItems = allProducts.Skip((page - 1) * pageSize).Take(pageSize);
         var pagedData      = new PagedData<object>(paginatedItems, allProducts.Count, page, pageSize);
 
-        var response = ApiResponse.Success(pagedData, "Berhasil mendapatkan daftar produk terpaginasi.", GetTraceId());
+        var response = Common.ApiResponse.Success(pagedData, "Berhasil mendapatkan daftar produk terpaginasi.", GetTraceId());
         return Ok(response);
     }
 
@@ -87,15 +87,17 @@ public class DemoResponseController : ControllerBase
     /// FUNGSI METHOD: Mengembalikan respons error standar dalam format ApiResponse.
     /// NILAI KEMBALIAN: HTTP 400 Bad Request berisi ApiResponse dengan Success = false dan daftar error.
     /// 
-    /// ALASAN MENGGUNAKAN `ApiResponse.Fail`:
-    /// Format error yang konsisten memungkinkan klien frontend memproses dan menampilkan pesan validasi 
-    /// secara seragam tanpa perlu logika parsing khusus per endpoint.
+    /// ALASAN MENGGUNAKAN `Common.ApiResponse.Fail`:
+    /// 1. Penggunaan awalan `Common.` mencegah "Namespace Collision" agar C# tidak bingung membedakan 
+    ///    antara nama namespace aplikasi (`TesBackendNet.ApiResponse`) dengan nama class (`ApiResponse`).
+    /// 2. Format error yang konsisten memungkinkan klien frontend memproses dan menampilkan pesan validasi 
+    ///    secara seragam tanpa perlu logika parsing khusus per endpoint.
     /// </summary>
     [HttpGet("error")]
     public IActionResult GetError()
     {
         var errors = new List<string> { "Harga tidak boleh kurang dari 0", "Stok produk tidak boleh kosong" };
-        var response = ApiResponse.Fail("Validasi input produk gagal.", errors, GetTraceId());
+        var response = Common.ApiResponse.Fail("Validasi input produk gagal.", errors, GetTraceId());
         return BadRequest(response);
     }
 }
